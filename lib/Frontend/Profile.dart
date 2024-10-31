@@ -114,11 +114,7 @@ class _ProfileState extends State<Profile> {
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.green.shade200, Colors.green.shade400],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+        color: Colors.white,
         ),
         child: SingleChildScrollView(
           child: Padding(

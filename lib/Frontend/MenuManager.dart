@@ -30,7 +30,8 @@ class _MenuManagerState extends State<MenuManager> {
     });
 
     try {
-      final response = await http.get(Uri.parse('http://10.11.29.164:5000/api/v1/items/items'));
+      final response = await http
+          .get(Uri.parse('http://10.11.29.164:5000/api/v1/items/items'));
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
         setState(() {
@@ -66,14 +67,16 @@ class _MenuManagerState extends State<MenuManager> {
         setState(() {
           foodItems.add(newItem);
         });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${newItem['name']} added!')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('${newItem['name']} added!')));
       } else {
         // Update existing item
         setState(() {
           int index = foodItems.indexOf(item);
           foodItems[index] = newItem; // Update item at the existing index
         });
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${newItem['name']} updated!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${newItem['name']} updated!')));
       }
     }
   }
@@ -83,7 +86,7 @@ class _MenuManagerState extends State<MenuManager> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Menu Manager'),
-        backgroundColor: Colors.amber,
+        backgroundColor: Colors.green,
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator()) // Loading indicator
@@ -93,13 +96,64 @@ class _MenuManagerState extends State<MenuManager> {
                   itemCount: foodItems.length,
                   itemBuilder: (context, index) {
                     final item = foodItems[index];
-                    return ListTile(
-                      title: Text(item['name']),
-                      subtitle: Text('Price: \$${item['price']}'),
-                      leading: item['image'] != null
-                          ? Image.file(File(item['image']), width: 50, height: 50, fit: BoxFit.cover)
-                          : Icon(Icons.fastfood),
-                      onTap: () => _openItemForm(context, item: item), // Edit item on tap
+                    // Assuming 'discount' is a percentage
+                    double price = item['price'].toDouble(); // Original price
+                    double discount =
+                        item['discount'].toDouble(); // Discount percentage
+                    double finalPrice = price - (price * discount / 100); // Calculate final price
+
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                      elevation: 4,
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(16),
+                        title: Text(
+                          item['name'],
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Price: Rs.${price.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.green,
+                              ),
+                            ),
+                            Text(
+                              'Discount: ${discount.toStringAsFixed(0)}%',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.red,
+                              ),
+                            ),
+                            Text(
+                              'Final Price: Rs.${finalPrice.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blue,
+                              ),
+                            ),
+                          ],
+                        ),
+                        leading: item['image'] != null
+                            ? ClipOval(
+                                child: Image.file(
+                                  File(item['image']),
+                                  width: 50,
+                                  height: 50,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : Icon(Icons.fastfood, size: 50),
+                        onTap: () => _openItemForm(context, item: item), // Edit item on tap
+                      ),
                     );
                   },
                 ),
